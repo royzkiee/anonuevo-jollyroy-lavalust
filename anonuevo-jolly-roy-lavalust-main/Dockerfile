@@ -1,17 +1,17 @@
 ARG PHP_VERSION=8.5
 
-FROM php:${PHP_VERSION}-apache
+FROM php:8.1-apache
 
-# Install PDO MySQL
-RUN docker-php-ext-install pdo pdo_mysql
+# I-install ang mga kinakailangang database extensions para sa PHP
+RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
+# Baguhin ang Apache DocumentRoot para tumuturo sa 'public' folder
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 
-# Allow .htaccess overrides
-RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Copy app files
+# Kopyahin ang lahat ng files sa tamang web server directory
 COPY . /var/www/html/
 
 # Fix permissions
